@@ -1,0 +1,143 @@
+<html>
+	<head>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+		<script type="text/javascript" src="http://static.stackmob.com/js/json2-min.js"></script>
+		<script type="text/javascript" src="http://static.stackmob.com/js/underscore-1.3.3-min.js"></script>
+		<script type="text/javascript" src="http://static.stackmob.com/js/backbone-0.9.2-min.js"></script>
+		<script type="text/javascript" src="http://static.stackmob.com/js/2.5.3-crypto-sha1-hmac.js"></script>
+		<script type="text/javascript" src="http://static.stackmob.com/js/stackmob-js-0.5.4-min.js"></script>
+        <script type="text/javascript">
+          StackMob.init({
+            appName: "signedonprototype",
+            clientSubdomain: "signedoncom",
+            publicKey: "36b5d737-86ee-44a2-8f7b-cacb7b9318c7",
+            apiVersion: 0
+          });
+        </script>	
+		
+		<title>Stackmob Feature Demo</title>		
+	</head>
+	<body>
+    <script>
+
+    //Initialize Models + Collections
+
+    Event = StackMob.Model.extend({
+      schemaName: 'event',
+    });
+
+    Events = StackMob.Collection.extend({
+      model: Event
+    });
+    
+    function getAvailibleEvents() {
+        var events = new Events();  
+        events.fetch({success: function() { 
+            var events = arguments[1];
+            var output = "";
+            
+            $.each(events, function() {
+                output+="<li>" + this.eventname + "</li>";
+            });
+            
+            $('#availible_events').html(output);
+
+        }});       
+    
+    }
+    
+    
+    function getAvailibleUsers() {
+       
+        
+        var users = new StackMob.Users();
+        users.fetch({success: function() { 
+            var users = arguments[1];
+            var output = "";
+            
+            $.each(users, function() {
+                output+="<li>" + this.username + "</li>";
+            });
+            
+            $('#availible_users').html(output);
+
+        }});      
+        
+
+    
+    }
+    
+    function createEvent() {
+
+        var event = new Event({eventname:$('#event_name').val()});
+        event.create();
+        
+    }
+    
+    function createUser() {
+    
+        var user = new StackMob.User({ username: $('#create_username').val(), password: $('#create_username').val(), profession: 'cartoonist'  });
+     
+        //Creates the user and saves it to StackMob's database asynchronously
+        user.create();
+    
+    }
+    
+    function login() {
+    
+        var user = new StackMob.User({ username: $('#login_username').val(), password: $('#login_password').val()});
+        user.login(false, {
+          success: function(model) {$('#justloggedin').html(model.username);},
+          error: function(model, response) {alert('problem logging in');}
+        });
+    }
+    
+    $("#btn_createEvent").live('click', createEvent);
+    $("#btn_createUser").live('click', createUser);
+    $("#btn_login").live('click', login);
+    $("#btn_getAvailibleUsers").live('click', getAvailibleUsers);
+    $("#btn_getAvailibleEvents").live('click', getAvailibleEvents);
+             
+    </script>
+    
+    <!--really this should be a backbone view -- but im just going for a down and dirty implementation-->
+    
+    <div>
+        <h1>Create New User</h1>
+        <label for='create_username'>Username</label><input type='text' id='create_username'><br/>
+        <label for='create_password'>Password</label><input type='password' id='create_password'></br>
+        <button id='btn_createUser'>Create User</button>
+    </div>
+    
+    
+    
+    <div>
+        <button id='btn_getAvailibleUsers'>Get Users</button><br/>
+        <ul id='availible_users'></ul>
+    </div>
+    
+    <div>
+        <h1>Login</h1>
+        <label for='login_username'>Username</label><input type='text' id='login_username'><br/>
+        <label for='login_password'>Password</label><input type='password' id='login_password'></br>
+        <button id='btn_login'>Login</button>
+    </div>
+    
+    <div>
+        <span id='justloggedin'></span> just logged in
+    </div>
+
+    <div>
+        <h1>Create Event</h1>
+        <label for='event_name'>Event Name</label><input type='text' id='event_name'><br/>
+        <button id='btn_createEvent'>Create Event</button>
+    </div>
+
+    <div>
+        <button id='btn_getAvailibleEvents'>Get Events</button><br/>
+        <ul id='availible_events'></ul>
+    </div>
+
+	</body>
+</html>
